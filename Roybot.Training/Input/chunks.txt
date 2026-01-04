@@ -1,0 +1,10 @@
+﻿Employees must reset their password through the internal Self-Service Password Portal at https://intranet/reset.
+The company VPN requires Duo Mobile approval and only supports connections from corporate-managed devices.
+To request new hardware, employees must submit a ticket tagged "Hardware-Provisioning" in the internal ticketing system.
+The internal Wi-Fi network "CorpNet" requires a rotating weekly passphrase posted only on the secure intranet page.
+Service Desk staff must escalate all Priority 1 outages to the On-Call Engineer using the internal escalation phone tree.
+Multi-factor authentication resets require identity verification using the employee’s HR security PIN.
+Shared mailbox access is granted only after a manager submits an approval form through the Internal Access Portal.
+The laptop imaging process uses the internal PXE boot server and should not be attempted offsite.
+Employees who forget their encryption key must visit the IT office in person to regenerate BitLocker recovery data.
+Internal software like "FinanceTools" is distributed exclusively through the Company Software Hub at https://intranet/software.
