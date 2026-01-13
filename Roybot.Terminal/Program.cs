@@ -37,7 +37,7 @@ internal static class Program
         Console.WriteLine("Type your IT question or comment. Type 'exit' to quit.");
         Console.WriteLine();
 
-        using CancellationTokenSource cancellationSource = new CancellationTokenSource();
+        using CancellationTokenSource cancellationSource = new ();
 
         Console.CancelKeyPress += (_, eventArgs) =>
         {
@@ -136,7 +136,7 @@ internal static class Program
 
                     // Assumes an OpenAiChatClient exists that uses the Chat Completions API
                     // and defaults to gpt-4o-mini when ModelId is null.
-                    OpenAiChatClient client = new OpenAiChatClient(factory, apiKey);
+                    OpenAiChatClient client = new (factory, apiKey);
                     return client;
                 });
 
@@ -154,14 +154,14 @@ internal static class Program
                             $"Environment variable '{EmbeddingsApiKeyEnvironmentVariable}' is not set.");
                     }
 
-                    OpenAiEmbeddingClient client = new OpenAiEmbeddingClient(factory, apiKey);
+                    OpenAiEmbeddingClient client = new (factory, apiKey);
                     return client;
                 });
 
                 // Vector store loaded from embedded snapshot.
                 services.AddSingleton<IVectorStore>(sp =>
                 {
-                    InMemoryVectorStore store = new InMemoryVectorStore();
+                    InMemoryVectorStore store = new ();
 
                     Assembly assembly = typeof(UserContext).Assembly;
                     using Stream? stream =
@@ -196,7 +196,7 @@ internal static class Program
                     IEmbeddingClient embeddingClient = sp.GetRequiredService<IEmbeddingClient>();
                     IVectorStore vectorStore = sp.GetRequiredService<IVectorStore>();
 
-                    ChatService service = new ChatService(chatClient, embeddingClient, vectorStore);
+                    ChatService service = new (chatClient, embeddingClient, vectorStore);
                     return service;
                 });
             });
@@ -211,7 +211,7 @@ internal static class Program
     /// <returns>A populated <see cref="UserContext"/> instance.</returns>
     private static UserContext CreateUserContext()
     {
-        UserContext context = new UserContext();
+        UserContext context = new ();
 
         context.Metadata["IpAddress"] = "127.0.0.1";
         context.Metadata["UserAgent"] = "Genova.Roybot.Terminal/1.0";

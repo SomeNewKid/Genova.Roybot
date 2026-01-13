@@ -26,17 +26,15 @@ public sealed class UserContext
     {
         get
         {
-            if (_conversation == null)
-            {
-                _conversation = new Conversation
+            _conversation ??= new Conversation
                 {
                     Id = Guid.NewGuid().ToString("N"),
-                    Messages = new List<ChatMessage>()
+                    Messages = [],
                 };
-            }
 
             return _conversation;
         }
+
         set
         {
             _conversation = value;

@@ -1,6 +1,7 @@
 ﻿// This file is part of the Genova project licensed under the GNU General Public License v3.0.
 // See the LICENSE file in the project root for more information.
 
+using System.Diagnostics.CodeAnalysis;
 using Genova.Common.Attributes;
 using Genova.Conduit.Chats;
 using Genova.Conduit.Embeddings;
@@ -15,6 +16,10 @@ namespace Genova.Roybot;
 /// the conversation in the user context.
 /// </summary>
 [CodeQuality(Public = true, Justification = "Intended for use by libraries and applications.")]
+[SuppressMessage(
+    "Performance",
+    "CA1859:Use concrete types when possible for improved performance",
+    Justification = "Favor interfaces over concrete types")]
 public sealed class ChatPipeline : IPipeline
 {
     private readonly IPipelineStep _retrieveContextStep;
@@ -42,8 +47,7 @@ public sealed class ChatPipeline : IPipeline
     /// The key in <see cref="PipelineContext.Items"/> under which the user input text is stored.
     /// </param>
     /// <param name="replyMessageKey">
-    /// The key under which the resulting assistant <see cref="Genova.Conduit.Models.ChatMessage"/>
-    /// will be stored.
+    /// The key under which the resulting assistant ChatMessage will be stored.
     /// </param>
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="chatClient"/>, <paramref name="embeddingClient"/>, or
@@ -60,20 +64,9 @@ public sealed class ChatPipeline : IPipeline
         string userInputKey,
         string replyMessageKey)
     {
-        if (chatClient == null)
-        {
-            throw new ArgumentNullException(nameof(chatClient));
-        }
-
-        if (embeddingClient == null)
-        {
-            throw new ArgumentNullException(nameof(embeddingClient));
-        }
-
-        if (vectorStore == null)
-        {
-            throw new ArgumentNullException(nameof(vectorStore));
-        }
+        ArgumentNullException.ThrowIfNull(chatClient);
+        ArgumentNullException.ThrowIfNull(embeddingClient);
+        ArgumentNullException.ThrowIfNull(vectorStore);
 
         if (string.IsNullOrWhiteSpace(userContextKey))
         {
@@ -118,14 +111,12 @@ public sealed class ChatPipeline : IPipeline
     /// </summary>
     /// <param name="context">The shared pipeline context.</param>
     /// <param name="cancellationToken">A token that may be used to observe cancellation.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public async Task ExecuteAsync(
         PipelineContext context,
         CancellationToken cancellationToken = default)
     {
-        if (context == null)
-        {
-            throw new ArgumentNullException(nameof(context));
-        }
+        ArgumentNullException.ThrowIfNull(context);
 
         // Retrieve relevant internal context based on user input.
         await _retrieveContextStep.ExecuteAsync(context, cancellationToken)

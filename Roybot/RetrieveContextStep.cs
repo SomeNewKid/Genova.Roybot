@@ -47,15 +47,8 @@ public sealed class RetrieveContextStep : IPipelineStep
         string userInputKey,
         string chunksKey)
     {
-        if (embeddingClient == null)
-        {
-            throw new ArgumentNullException(nameof(embeddingClient));
-        }
-
-        if (vectorStore == null)
-        {
-            throw new ArgumentNullException(nameof(vectorStore));
-        }
+        ArgumentNullException.ThrowIfNull(embeddingClient);
+        ArgumentNullException.ThrowIfNull(vectorStore);
 
         if (string.IsNullOrWhiteSpace(userInputKey))
         {
@@ -80,14 +73,12 @@ public sealed class RetrieveContextStep : IPipelineStep
     /// </summary>
     /// <param name="context">The shared pipeline context.</param>
     /// <param name="cancellationToken">A token that may be used to observe cancellation.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public async Task ExecuteAsync(
         PipelineContext context,
         CancellationToken cancellationToken = default)
     {
-        if (context == null)
-        {
-            throw new ArgumentNullException(nameof(context));
-        }
+        ArgumentNullException.ThrowIfNull(context);
 
         string? userInput = context.GetItem<string>(_userInputKey);
         if (string.IsNullOrWhiteSpace(userInput))
@@ -98,10 +89,10 @@ public sealed class RetrieveContextStep : IPipelineStep
         }
 
         // Compute embedding for the user input.
-        EmbeddingRequest request = new EmbeddingRequest
+        EmbeddingRequest request = new ()
         {
-            Inputs = new List<string> { userInput },
-            ModelId = null // Use default model (e.g., text-embedding-3-small).
+            Inputs = [userInput],
+            ModelId = null, // Use default model (e.g., text-embedding-3-small).
         };
 
         EmbeddingResponse response =
@@ -127,7 +118,7 @@ public sealed class RetrieveContextStep : IPipelineStep
                     cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
 
-        List<string> chunks = new List<string>();
+        List<string> chunks = [];
 
         for (int i = 0; i < results.Count; i++)
         {

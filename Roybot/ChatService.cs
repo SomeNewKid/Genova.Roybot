@@ -1,6 +1,7 @@
 ﻿// This file is part of the Genova project licensed under the GNU General Public License v3.0.
 // See the LICENSE file in the project root for more information.
 
+using System.Diagnostics.CodeAnalysis;
 using Genova.Common.Attributes;
 using Genova.Conduit.Chats;
 using Genova.Conduit.Embeddings;
@@ -15,6 +16,10 @@ namespace Genova.Roybot;
 /// an internal pipeline.
 /// </summary>
 [CodeQuality(Public = true, Justification = "Intended for use by libraries and applications.")]
+[SuppressMessage(
+    "Performance",
+    "CA1859:Use concrete types when possible for improved performance",
+    Justification = "Favor interfaces over concrete types")]
 public sealed class ChatService : IChatService
 {
     private const string UserContextKey = "Roy.UserContext";
@@ -43,20 +48,9 @@ public sealed class ChatService : IChatService
         IEmbeddingClient embeddingClient,
         IVectorStore vectorStore)
     {
-        if (chatClient == null)
-        {
-            throw new ArgumentNullException(nameof(chatClient));
-        }
-
-        if (embeddingClient == null)
-        {
-            throw new ArgumentNullException(nameof(embeddingClient));
-        }
-
-        if (vectorStore == null)
-        {
-            throw new ArgumentNullException(nameof(vectorStore));
-        }
+        ArgumentNullException.ThrowIfNull(chatClient);
+        ArgumentNullException.ThrowIfNull(embeddingClient);
+        ArgumentNullException.ThrowIfNull(vectorStore);
 
         _chatPipeline = new ChatPipeline(
             chatClient,
@@ -79,17 +73,14 @@ public sealed class ChatService : IChatService
         string userInput,
         CancellationToken cancellationToken = default)
     {
-        if (userContext == null)
-        {
-            throw new ArgumentNullException(nameof(userContext));
-        }
+        ArgumentNullException.ThrowIfNull(userContext);
 
         if (string.IsNullOrWhiteSpace(userInput))
         {
             throw new ArgumentException("User input must be non-empty.", nameof(userInput));
         }
 
-        PipelineContext context = new PipelineContext(ExecutionEnvironment.Application);
+        PipelineContext context = new (ExecutionEnvironment.Application);
         context.SetItem(UserContextKey, userContext);
         context.SetItem(UserInputKey, userInput);
 
@@ -98,14 +89,11 @@ public sealed class ChatService : IChatService
 
         ChatMessage? reply = context.GetItem<ChatMessage>(ReplyMessageKey);
 
-        if (reply == null)
-        {
-            reply = new ChatMessage
+        reply ??= new ChatMessage
             {
                 Role = ChatMessageRole.Assistant,
-                Content = "I encountered an error generating a reply. One of us caused an error. Statistically, it was you."
+                Content = "I encountered an error generating a reply. One of us caused an error. Statistically, it was you.",
             };
-        }
 
         return reply;
     }

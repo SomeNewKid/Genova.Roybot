@@ -65,14 +65,12 @@ public sealed class UpdateConversationStep : IPipelineStep
     /// </summary>
     /// <param name="context">The shared pipeline context.</param>
     /// <param name="cancellationToken">A token that may be used to observe cancellation.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public Task ExecuteAsync(
         PipelineContext context,
         CancellationToken cancellationToken = default)
     {
-        if (context == null)
-        {
-            throw new ArgumentNullException(nameof(context));
-        }
+        ArgumentNullException.ThrowIfNull(context);
 
         UserContext? userContext = context.GetItem<UserContext>(_userContextKey);
         if (userContext == null)
@@ -98,7 +96,7 @@ public sealed class UpdateConversationStep : IPipelineStep
         }
 
         // Append user message.
-        ChatMessage userMessage = new ChatMessage
+        ChatMessage userMessage = new ()
         {
             Role = ChatMessageRole.User,
             Content = userInput,

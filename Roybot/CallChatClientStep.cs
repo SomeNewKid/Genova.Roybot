@@ -28,12 +28,18 @@ public sealed class CallChatClientStep : IPipelineStep
     /// </exception>
     public CallChatClientStep(IChatClient chatClient)
     {
-        if (chatClient == null)
-        {
-            throw new ArgumentNullException(nameof(chatClient));
-        }
+        ArgumentNullException.ThrowIfNull(chatClient);
 
         _chatClient = chatClient;
+    }
+
+    /// <summary>
+    /// Gets the context key under which the assistant <see cref="ChatMessage"/> is stored.
+    /// </summary>
+    /// <returns>The assistant message context key.</returns>
+    public static string GetAssistantMessageKey()
+    {
+        return AssistantMessageKey;
     }
 
     /// <summary>
@@ -43,14 +49,12 @@ public sealed class CallChatClientStep : IPipelineStep
     /// </summary>
     /// <param name="context">The shared pipeline context.</param>
     /// <param name="cancellationToken">A token that may be used to observe cancellation.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public async Task ExecuteAsync(
         PipelineContext context,
         CancellationToken cancellationToken = default)
     {
-        if (context == null)
-        {
-            throw new ArgumentNullException(nameof(context));
-        }
+        ArgumentNullException.ThrowIfNull(context);
 
         string chatRequestKey = BuildPromptStep.GetChatRequestKey();
         ChatRequest? request = context.GetItem<ChatRequest>(chatRequestKey);
@@ -94,13 +98,5 @@ public sealed class CallChatClientStep : IPipelineStep
         }
 
         context.SetItem(AssistantMessageKey, assistantMessage);
-    }
-
-    /// <summary>
-    /// Gets the context key under which the assistant <see cref="ChatMessage"/> is stored.
-    /// </summary>
-    public static string GetAssistantMessageKey()
-    {
-        return AssistantMessageKey;
     }
 }

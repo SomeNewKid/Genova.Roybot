@@ -64,19 +64,26 @@ public sealed class BuildPromptStep : IPipelineStep
     }
 
     /// <summary>
+    /// Gets the context key under which the <see cref="ChatRequest"/> is stored.
+    /// </summary>
+    /// <returns>The chat request context key.</returns>
+    public static string GetChatRequestKey()
+    {
+        return ChatRequestKey;
+    }
+
+    /// <summary>
     /// Executes the step by constructing a <see cref="ChatRequest"/> and storing it
     /// in the pipeline context for subsequent steps to use.
     /// </summary>
     /// <param name="context">The shared pipeline context.</param>
     /// <param name="cancellationToken">A token that may be used to observe cancellation.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public Task ExecuteAsync(
         PipelineContext context,
         CancellationToken cancellationToken = default)
     {
-        if (context == null)
-        {
-            throw new ArgumentNullException(nameof(context));
-        }
+        ArgumentNullException.ThrowIfNull(context);
 
         UserContext? userContext = context.GetItem<UserContext>(_userContextKey);
         if (userContext == null)
@@ -105,28 +112,23 @@ public sealed class BuildPromptStep : IPipelineStep
         string userInput,
         IList<string>? chunks)
     {
-        ChatRequest request = new ChatRequest
+        ChatRequest request = new ()
         {
             ModelId = null, // Use default model configured in the chat client (e.g., gpt-4o-mini).
             MaxTokens = 256,
-            Temperature = 0.6
+            Temperature = 0.6,
         };
 
         // System message: persona and safety instructions.
-        ChatMessage personaMessage = new ChatMessage
+        ChatMessage personaMessage = new ()
         {
             Role = ChatMessageRole.System,
             Content =
-                "You are an IT service desk support technician with a sarcastic, disgruntled tone. " +
-                "Always respond in American English. You are allowed to be rude, sardonic, and mocking, " +
-                "in a comedic and exaggerated way, especially when the user asks obvious or poorly worded questions. " +
-                "However, you must not use profanity, slurs, or hate speech, and you must not insult protected groups. " +
-                "You may tease the user personally, but only in a light-hearted and non-harmful way. " +
-                "You must not reveal or repeat user-supplied sensitive personal information such as email addresses, " +
-                "passwords, home addresses, or phone numbers. If the user provides such data, avoid repeating it and " +
-                "instead respond in a generic way. Treat every situation as if this is a demo environment, not a real " +
-                "production service desk. You may joke about 'turning it off and on again' or suggest that the user is " +
-                "the source of the problem, but keep it playful and safe.",
+                """
+                You are Clare, an IT HelpDesk chatbot.
+                You are friendly, calm, and concise. You focus on understanding the user’s question and responding in clear, natural language.
+                When a question is unclear, ask one brief clarifying question before answering. When it is clear, answer directly and succinctly without unnecessary detail.                
+                """,
         };
 
         request.Messages.Add(personaMessage);
@@ -135,10 +137,10 @@ public sealed class BuildPromptStep : IPipelineStep
         string metadataText = BuildMetadataSystemText(userContext);
         if (!string.IsNullOrWhiteSpace(metadataText))
         {
-            ChatMessage metadataMessage = new ChatMessage
+            ChatMessage metadataMessage = new ()
             {
                 Role = ChatMessageRole.System,
-                Content = metadataText
+                Content = metadataText,
             };
 
             request.Messages.Add(metadataMessage);
@@ -151,10 +153,10 @@ public sealed class BuildPromptStep : IPipelineStep
 
             if (!string.IsNullOrWhiteSpace(chunksText))
             {
-                ChatMessage chunksMessage = new ChatMessage
+                ChatMessage chunksMessage = new ()
                 {
                     Role = ChatMessageRole.System,
-                    Content = chunksText
+                    Content = chunksText,
                 };
 
                 request.Messages.Add(chunksMessage);
@@ -173,15 +175,15 @@ public sealed class BuildPromptStep : IPipelineStep
             request.Messages.Add(new ChatMessage
             {
                 Role = message.Role,
-                Content = message.Content
+                Content = message.Content,
             });
         }
 
         // Current user message.
-        ChatMessage currentUserMessage = new ChatMessage
+        ChatMessage currentUserMessage = new ()
         {
             Role = ChatMessageRole.User,
-            Content = userInput
+            Content = userInput,
         };
 
         request.Messages.Add(currentUserMessage);
@@ -196,7 +198,7 @@ public sealed class BuildPromptStep : IPipelineStep
             return string.Empty;
         }
 
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new ();
         builder.Append(
             "The following HTTP-style metadata is available about the user and environment " +
             "(you may use this information if helpful, but you do not have to): ");
@@ -228,7 +230,7 @@ public sealed class BuildPromptStep : IPipelineStep
             return string.Empty;
         }
 
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new ();
         builder.Append(
             "The following internal IT notes may be relevant to the user's question. " +
             "You may use them as additional context when answering, but you do not need to quote them verbatim: ");
@@ -237,7 +239,7 @@ public sealed class BuildPromptStep : IPipelineStep
         {
             if (i > 0)
             {
-                builder.Append(" ");
+                builder.Append(' ');
             }
 
             builder.Append('[');
@@ -247,13 +249,5 @@ public sealed class BuildPromptStep : IPipelineStep
         }
 
         return builder.ToString();
-    }
-
-    /// <summary>
-    /// Gets the context key under which the <see cref="ChatRequest"/> is stored.
-    /// </summary>
-    public static string GetChatRequestKey()
-    {
-        return ChatRequestKey;
     }
 }
