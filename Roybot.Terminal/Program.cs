@@ -17,8 +17,8 @@ namespace Genova.Roybot.Terminal;
 /// </summary>
 internal static class Program
 {
-    private const string ChatApiKeyEnvironmentVariable = "openai-genova-api-key";
-    private const string EmbeddingsApiKeyEnvironmentVariable = "openai-genova-api-key";
+    private const string ChatApiKeyEnvironmentVariable = "OPENAI_API_KEY";
+    private const string EmbeddingsApiKeyEnvironmentVariable = "OPENAI_API_KEY";
     private const string SnapshotResourceName = "Genova.Roybot.Data.vector-snapshot.json";
 
     /// <summary>

@@ -2,7 +2,6 @@
 // See the LICENSE file in the project root for more information.
 
 using Genova.Common.Attributes;
-using Genova.Conduit.Chats;
 using Genova.Conduit.Storage;
 
 namespace Genova.Roybot;

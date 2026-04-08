@@ -90,12 +90,12 @@ internal static class Program
                     IHttpClientFactory factory = sp.GetRequiredService<IHttpClientFactory>();
 
                     string? apiKey =
-                        Environment.GetEnvironmentVariable("openai-genova-api-key");
+                        Environment.GetEnvironmentVariable("OPENAI_API_KEY");
 
                     if (string.IsNullOrWhiteSpace(apiKey))
                     {
                         throw new InvalidOperationException(
-                            "Environment variable 'openai-genova-api-key' is not set.");
+                            "Environment variable 'OPENAI_API_KEY' is not set.");
                     }
 
                     return new OpenAiEmbeddingClient(factory, apiKey);
