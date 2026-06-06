@@ -41,9 +41,9 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Genova.Common" Version="1.0.0-20260606-0652" />
-    <PackageReference Include="Genova.Conduit" Version="1.0.0-20260606-1118" />
-    <PackageReference Include="Genova.MiniML" Version="1.0.0-20260606-1054" />
+    <PackageReference Include="Genova.Common" Version="1.0.0-20260606-1507" />
+    <PackageReference Include="Genova.Conduit" Version="1.0.0-20260606-1625" />
+    <PackageReference Include="Genova.MiniML" Version="1.0.0-20260606-1610" />
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="9.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
