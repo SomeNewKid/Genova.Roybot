@@ -11,18 +11,16 @@ namespace Genova.Roybot.Training;
 
 internal static class Program
 {
-    private const string InputPath =
-        @"C:\Git\Genova.Roybot\Roybot.Training\Input\chunks.txt";
-
-    private const string OutputPath =
-        @"C:\Git\Genova.Roybot\Roybot\Data\vector-snapshot.json";
-
     /// <summary>
     /// The entry point for the training application that generates vector embeddings
     /// and writes them to a JSON snapshot file.
     /// </summary>
     private static async Task Main()
     {
+        string solutionFolder = FindSolutionFolder();
+        string inputPath = Path.Combine(solutionFolder, "Roybot.Training", "Input", "chunks.txt");
+        string outputPath = Path.Combine(solutionFolder, "Roybot", "Data", "vector-snapshot.json");
+
         IHost host = CreateHostBuilder().Build();
 
         IEmbeddingClient embeddingClient =
@@ -30,16 +28,16 @@ internal static class Program
 
         Console.WriteLine("=== Genova.Roybot Training: Embedding Chunks ===");
         Console.WriteLine("Reading input chunks from:");
-        Console.WriteLine(InputPath);
+        Console.WriteLine(inputPath);
         Console.WriteLine();
 
-        if (!File.Exists(InputPath))
+        if (!File.Exists(inputPath))
         {
             Console.WriteLine("ERROR: Input file does not exist.");
             return;
         }
 
-        IList<string> chunks = await ReadChunksAsync(InputPath);
+        IList<string> chunks = await ReadChunksAsync(inputPath);
 
         if (chunks.Count == 0)
         {
@@ -67,12 +65,31 @@ internal static class Program
         VectorStoreSnapshot snapshot = BuildSnapshot(chunks, response);
 
         Console.WriteLine("Writing snapshot to:");
-        Console.WriteLine(OutputPath);
+        Console.WriteLine(outputPath);
         Console.WriteLine();
 
-        await WriteSnapshotAsync(snapshot, OutputPath);
+        await WriteSnapshotAsync(snapshot, outputPath);
 
         Console.WriteLine("Completed successfully.");
+    }
+
+    private static string FindSolutionFolder()
+    {
+        const string solutionFileName = "Genova.Roybot.sln";
+        DirectoryInfo? directory = new(AppContext.BaseDirectory);
+
+        while (directory != null)
+        {
+            if (File.Exists(Path.Combine(directory.FullName, solutionFileName)))
+            {
+                return directory.FullName;
+            }
+
+            directory = directory.Parent;
+        }
+
+        throw new InvalidOperationException(
+            $"Solution folder containing '{solutionFileName}' could not be found.");
     }
 
     /// <summary>
